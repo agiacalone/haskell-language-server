@@ -27,7 +27,7 @@ import           Control.Monad.Trans.Reader
 import qualified Control.Monad.Trans.State.Strict     as State
 import           Data.Dynamic
 import           Data.Either
-import           Data.Foldable                        (traverse_)
+import           Data.Foldable                        (for_, traverse_)
 import           Data.HashSet                         (HashSet)
 import qualified Data.HashSet                         as HSet
 import           Data.IORef.Extra
@@ -51,27 +51,27 @@ newDatabase databaseExtra databaseRules = do
 
 -- | Increment the step and mark dirty
 incDatabase :: Database -> Maybe [Key] -> STM ()
--- all keys are dirty
-incDatabase db Nothing = incDatabaseGen (const True) db
 -- only some keys are dirty
 incDatabase db (Just kk) = do
+    modifyTVar'  (databaseStep db) $ \(Step i) -> Step $ i + 1
     transitiveDirtyKeys <- transitiveDirtySet db kk
-    incDatabaseGen (`HSet.member` transitiveDirtyKeys) db
+    for_ transitiveDirtyKeys $ \k ->
+        SMap.focus updateDirty k (databaseValues db)
 
-incDatabaseGen :: (Key -> Bool) -> Database -> STM ()
-incDatabaseGen pred db = do
+-- all keys are dirty
+incDatabase db Nothing = do
     modifyTVar'  (databaseStep db) $ \(Step i) -> Step $ i + 1
     let list = SMap.listT (databaseValues db)
-        reset k (KeyDetails status rdeps) =
+    flip ListT.traverse_ list $ \(k,_) -> do
+        SMap.focus updateDirty k (databaseValues db)
+
+updateDirty :: Monad m => Focus.Focus KeyDetails m ()
+updateDirty = Focus.adjust $ \(KeyDetails status rdeps) ->
             let status'
-                  | Running _ _ x <- status = Dirty x
-                  | Clean x <- status
-                  , pred k = Dirty (Just x)
+                  | Running _ _ _ x <- status = Dirty x
+                  | Clean x <- status = Dirty (Just x)
                   | otherwise = status
             in KeyDetails status' rdeps
-    flip ListT.traverse_ list $ \(k,v) -> do
-        SMap.insert (reset k v) k (databaseValues db)
-
 -- | Unwrap and build a list of keys in parallel
 build
     :: forall key value . (RuleResult key ~ value, Typeable key, Show key, Hashable key, Eq key, Typeable value)
@@ -92,19 +92,19 @@ builder
 builder db@Database{..} keys = withRunInIO $ \(RunInIO run) -> do
     -- Things that I need to force before my results are ready
     toForce <- liftIO $ newTVarIO []
-    results <- liftIO $ atomically $ do
-        for keys $ \id -> do
+    current <- liftIO $ readTVarIO databaseStep
+    results <- liftIO $ atomically $ for keys $ \id -> do
             -- Spawn the id if needed
             status <- SMap.lookup id databaseValues
-            val <- case maybe (Dirty Nothing) keyStatus status of
+            val <- case viewDirty current $ maybe (Dirty Nothing) keyStatus status of
                 Clean r -> pure r
-                Running force val _ -> do
+                Running _ force val _ -> do
                     modifyTVar' toForce (Wait force :)
                     pure val
                 Dirty s -> do
                     let act = run (refresh db id s)
                         (force, val) = splitIO (join act)
-                    SMap.focus (updateStatus $ Running force val s) id databaseValues
+                    SMap.focus (updateStatus $ Running current force val s) id databaseValues
                     modifyTVar' toForce (Spawn force:)
                     pure val
 

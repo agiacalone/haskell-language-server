@@ -113,12 +113,21 @@ getDatabaseValues = atomically
 data Status
     = Clean Result
     | Dirty (Maybe Result)
-    | Running (IO ()) Result (Maybe Result)
+    | Running {
+        runningStep   :: !Step,
+        runningWait   :: !(IO ()),
+        runningResult :: Result,
+        runningPrev   :: !(Maybe Result)
+        }
+
+viewDirty :: Step -> Status -> Status
+viewDirty currentStep (Running s _ _ re) | currentStep /= s = Dirty re
+viewDirty _ other = other
 
 getResult :: Status -> Maybe Result
-getResult (Clean re)         = Just re
-getResult (Dirty m_re)       = m_re
-getResult (Running _ _ m_re) = m_re
+getResult (Clean re)           = Just re
+getResult (Dirty m_re)         = m_re
+getResult (Running _ _ _ m_re) = m_re -- watch out: this returns the previous result
 
 data Result = Result {
     resultValue     :: !Value,
