@@ -15,6 +15,7 @@ import           Control.Applicative
 import           Control.Monad.Catch
 -- Needed in GHC 8.6.5
 import           Control.Concurrent.STM        (TVar, atomically)
+import           Control.Monad.Fail
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Reader
 import           Data.Aeson                    (FromJSON, ToJSON)
