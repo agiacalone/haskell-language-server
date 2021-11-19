@@ -1,3 +1,4 @@
+{-# LANGUAGE PackageImports #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Development.IDE.Main
 (Arguments(..)
@@ -98,7 +99,7 @@ import           Ide.Types                             (IdeCommand (IdeCommand),
                                                         PluginId (PluginId),
                                                         ipMap)
 import qualified Language.LSP.Server                   as LSP
-import qualified ListT
+import qualified "list-t" ListT
 import           Numeric.Natural                       (Natural)
 import           Options.Applicative                   hiding (action)
 import qualified StmContainers.Map                     as STM

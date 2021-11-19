@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP             #-}
 {-# LANGUAGE NoApplicativeDo #-}
+{-# LANGUAGE PackageImports  #-}
 {-# HLINT ignore #-}
 module Development.IDE.Core.Tracing
     ( otTracedHandler
@@ -59,7 +60,7 @@ import           Ide.PluginUtils                   (installSigUsr1Handler)
 import           Ide.Types                         (PluginId (..))
 import           Language.LSP.Types                (NormalizedFilePath,
                                                     fromNormalizedFilePath)
-import qualified ListT
+import qualified "list-t" ListT
 import           Numeric.Natural                   (Natural)
 import           OpenTelemetry.Eventlog            (SpanInFlight (..), addEvent,
                                                     beginSpan, endSpan,

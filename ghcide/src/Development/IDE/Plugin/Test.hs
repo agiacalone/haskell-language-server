@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveAnyClass     #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs              #-}
+{-# LANGUAGE PackageImports     #-}
 {-# LANGUAGE PolyKinds          #-}
 -- | A plugin that adds custom messages for use in tests
 module Development.IDE.Plugin.Test
@@ -45,7 +46,7 @@ import           Ide.Plugin.Config                    (CheckParents)
 import           Ide.Types
 import qualified Language.LSP.Server                  as LSP
 import           Language.LSP.Types
-import qualified ListT
+import qualified "list-t" ListT
 import qualified StmContainers.Map                    as STM
 import           System.Time.Extra
 

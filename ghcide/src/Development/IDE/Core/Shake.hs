@@ -5,6 +5,7 @@
 {-# LANGUAGE DerivingStrategies        #-}
 {-# LANGUAGE DuplicateRecordFields     #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE PackageImports            #-}
 {-# LANGUAGE PolyKinds                 #-}
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE RecursiveDo               #-}
@@ -166,7 +167,7 @@ import           HieDb.Types
 import           Ide.Plugin.Config
 import qualified Ide.PluginUtils                        as HLS
 import           Ide.Types                              (PluginId)
-import qualified ListT
+import qualified "list-t" ListT
 import qualified StmContainers.Map                      as STM
 
 -- | We need to serialize writes to the database, so we send any function that
