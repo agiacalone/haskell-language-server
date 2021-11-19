@@ -179,10 +179,10 @@ mkCompl
                   _tags = Nothing,
                   _detail =
                       case (typeText, provenance) of
-                          (Just t,_) -> Just $ colon <> t
+                          (Just t,_)            -> Just $ colon <> t
                           (_, ImportedFrom mod) -> Just $ "from " <> mod
-                          (_, DefinedIn mod) -> Just $ "from " <> mod
-                          _ -> Nothing,
+                          (_, DefinedIn mod)    -> Just $ "from " <> mod
+                          _                     -> Nothing,
                   _documentation = documentation,
                   _deprecated = Nothing,
                   _preselect = Nothing,
@@ -684,6 +684,9 @@ uniqueCompl candidate unique =
       importedFrom (provenance -> ImportedFrom m) = m
       importedFrom (provenance -> DefinedIn m)    = m
       importedFrom (provenance -> Local _)        = "local"
+#if __GLASGOW_HASKELL__ < 810
+      importedFrom _                              = ""
+#endif
 
 -- ---------------------------------------------------------------------
 -- helper functions for infix backticks
