@@ -20,7 +20,6 @@ import           Control.DeepSeq
 import           Control.Exception
 import qualified Data.ByteString.Char8                as BS
 import           Data.Dynamic
-import           Data.HashMap.Strict
 import           Data.Hashable
 import           Data.Typeable                        (cast)
 import           Data.Vector                          (Vector)
