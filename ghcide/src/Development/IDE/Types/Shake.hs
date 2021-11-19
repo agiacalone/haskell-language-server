@@ -31,6 +31,7 @@ import           Development.IDE.Types.Diagnostics
 import           Development.IDE.Types.Location
 import           GHC.Generics
 import           Language.LSP.Types
+import qualified StmContainers.Map                    as STM
 import           Type.Reflection                      (SomeTypeRep (SomeTypeRep),
                                                        pattern App, pattern Con,
                                                        typeOf, typeRep,
@@ -56,7 +57,7 @@ data ValueWithDiagnostics
   = ValueWithDiagnostics !(Value Dynamic) !(Vector FileDiagnostic)
 
 -- | The state of the all values and diagnostics
-type Values = HashMap Key ValueWithDiagnostics
+type Values = STM.Map Key ValueWithDiagnostics
 
 -- | When we depend on something that reported an error, and we fail as a direct result, throw BadDependency
 --   which short-circuits the rest of the action

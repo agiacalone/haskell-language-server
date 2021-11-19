@@ -12,7 +12,6 @@ module Development.IDE.Plugin.Test
   ) where
 
 import           Control.Concurrent                   (threadDelay)
-import           Control.Concurrent.Extra             (readVar)
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.STM
@@ -46,6 +45,8 @@ import           Ide.Plugin.Config                    (CheckParents)
 import           Ide.Types
 import qualified Language.LSP.Server                  as LSP
 import           Language.LSP.Types
+import qualified ListT
+import qualified StmContainers.Map                    as STM
 import           System.Time.Extra
 
 type Age = Int
@@ -124,7 +125,7 @@ testRequestHandler s (GarbageCollectDirtyKeys parents age) = do
     res <- liftIO $ runAction "garbage collect dirty" s $ garbageCollectDirtyKeysOlderThan age parents
     return $ Right $ toJSON $ map show res
 testRequestHandler s GetStoredKeys = do
-    keys <- liftIO $ HM.keys <$> readVar (state $ shakeExtras s)
+    keys <- liftIO $ atomically $ map fst <$> ListT.toList (STM.listT $ state $ shakeExtras s)
     return $ Right $ toJSON $ map show keys
 testRequestHandler s GetFilesOfInterest = do
     ff <- liftIO $ getFilesOfInterest s
