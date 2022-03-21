@@ -115,7 +115,7 @@ jobs:
           echo "  ghc-options: -O0" >> cabal.project
 
       - name: Cache Cabal
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-cabal
         with:
