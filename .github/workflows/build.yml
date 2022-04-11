@@ -197,7 +197,7 @@ jobs:
       matrix:
         os: [Linux, macOS, Windows]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
 
       - run: |
           # move the binaries for the specific platform into bin/
@@ -232,7 +232,7 @@ jobs:
     needs: [tar, src-tar]
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
 
       - run: |
           # generate sha256 sums for all current artifacts
